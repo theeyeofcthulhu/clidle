@@ -207,13 +207,16 @@ static bool valid(const char *word)
     return false;
 }
 
-static enum GuessQuality qualify_guess(char c, size_t index)
+static enum GuessQuality qualify_guess(const char *guess, size_t index)
 {
+    const char c = guess[index];
+
     if (solution.ptr[index] == c)
         return RightPlace;
 
     for (size_t i = 0; i < LETTERS; i++) {
-        if (solution.ptr[i] == c)
+        /* If we find the letter somewhere we have to ensure it has not already been guessed correctly there */
+        if (solution.ptr[i] == c && guess[i] != c)
             return WrongPlace;
     }
 
@@ -300,7 +303,7 @@ static void color_word_and_update_alphabet(const char *guess)
     printf(ANSI_UP_LINE);
 
     for (size_t i = 0; i < LETTERS; i++) {
-        enum GuessQuality quality = qualify_guess(guess[i], i);
+        enum GuessQuality quality = qualify_guess(guess, i);
 
         print_qualified_char(guess[i], quality);
         fflush(stdout);
